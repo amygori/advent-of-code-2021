@@ -1,12 +1,14 @@
 import sys
 from pathlib import Path
 from itertools import chain, filterfalse
+from operator import indexOf
 from pprint import pprint as pp
-
+from pdb import set_trace as bp
 
 win = False
 score = 0
 boards = []
+winning_boards = []
 
 
 def flatten(list_of_lists):
@@ -15,17 +17,16 @@ def flatten(list_of_lists):
 
 
 def play(input):
-    global win
     numbers, *board_data = input
     numbers = numbers.split(",")
-    _make_boards(board_data)
+    make_boards(board_data)
     for count, number in enumerate(numbers):
-        _mark_boards(number)
-        if win:
-            return
+        mark_boards(number)
+    winning_board_idx, winning_num = winning_boards[-1]
+    calc_score(boards[int(winning_board_idx)], winning_num)
 
 
-def _make_boards(board_data):
+def make_boards(board_data):
     """
     Take the board data and compose into 5x5 arrays
     """
@@ -42,13 +43,16 @@ def _make_boards(board_data):
             print(err)
 
 
-def _mark_boards(bingo_num):
+def mark_boards(bingo_num):
     for idx, board in enumerate(boards):
+        if indexOf(boards, board) in dict(winning_boards):
+            # If this board has already won, don't continue marking it
+            continue
         for index, row in enumerate(board):
             for i, each_num in enumerate(row):
                 if each_num == bingo_num:
                     row[i] = "X"
-        check_for_bingo(board, bingo_num)
+            check_for_bingo(board, bingo_num)
 
 
 def check_for_bingo(board, bingo_num):
@@ -58,8 +62,6 @@ def check_for_bingo(board, bingo_num):
 
 
 def check_row(board, bingo_num):
-    if win:
-        return
     for row in board:
         if all(item in ["X"] for item in row):
             claim_bingo(board, bingo_num)
@@ -67,8 +69,6 @@ def check_row(board, bingo_num):
 
 
 def check_column(board, bingo_num):
-    if win:
-        return
     for col in range(5):
         column = []
         for row in board:
@@ -79,16 +79,15 @@ def check_column(board, bingo_num):
 
 
 def calc_score(board, winning_num):
-    global score
     board_nums = list(filterfalse(lambda n: n == "X", flatten(board)))
     score = int(winning_num) * sum([int(num) for num in board_nums])
+    print(score)
 
 
 def claim_bingo(board, bingo_num):
-    global win
-    win = True
-    calc_score(board, bingo_num)
-    print(f"Final Score:", score)
+    if indexOf(boards, board) not in dict(winning_boards):
+        # Track boards that have won and the number they won with
+        winning_boards.append((indexOf(boards, board), bingo_num))
 
 
 if __name__ == "__main__":
