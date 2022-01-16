@@ -45,37 +45,35 @@ def map_segments(input):
         for pattern in six_digits:
             # if 7 is not a subset of this pattern it is a 6
             if not set(segment_map[7]).issubset(pattern):
-                print(f"{pattern} has to be a 6")
                 segment_map[6] = pattern
             # if 4 is a subset of pattern it is a 9
             elif set(segment_map[4]).issubset(pattern):
-                print(f"{pattern} has to be a 9")
                 segment_map[9] = pattern
             # anything else has to be 0
             else:
-                print(f"{pattern} has to be a 0")
                 segment_map[0] = pattern
 
         for pattern in five_digits:
             # if 7 is a subset of pattern it is a 3
             if set(segment_map[7]).issubset(pattern):
-                print(f"{pattern} has to be a 3")
                 segment_map[3] = pattern
             # if the pattern is a subset of 6 it is a 5
             elif set(pattern).issubset(segment_map[6]):
-                print(f"{pattern} has to be a 5")
                 segment_map[5] = pattern
             # anything else has to be 2
             else:
-                print(f"{pattern} has to be a 2")
                 segment_map[2] = pattern
 
         digit = decode_output_value(segment_map, output_value)
-        print(digit)
+        # Collect all digits as integers
+        decoded_digits.append(int(digit))
+    print_final_sum(decoded_digits)
 
 def decode_output_value(segment_map, output):
-    print(segment_map)
     output = output.strip().split()
+    # we need to sort values so that we can compare patterns accurately
+    # since not all the output values are in the same order
+    # for example, both `fcadb` and 'cdbaf' can be decoded to 3
     sorted_output_values = ["".join(sorted(value)) for value in output]
     sorted_values = ["".join(sorted(value)) for value in segment_map.values()]
     lookup_by_pattern = dict(zip(sorted_values, segment_map.keys()))
@@ -84,6 +82,8 @@ def decode_output_value(segment_map, output):
         digit += str(num)
     return digit
 
+def print_final_sum(decoded_digits):
+    print(sum(decoded_digits))
 
 if __name__ == "__main__":
     file = Path(sys.argv[1])
