@@ -20,6 +20,8 @@ def play(input):
     numbers, *board_data = input
     numbers = numbers.split(",")
     make_boards(board_data)
+    print("boards: 🍌")
+    print(boards)
     for count, number in enumerate(numbers):
         mark_boards(number)
     winning_board_idx, winning_num = winning_boards[-1]
@@ -97,3 +99,4 @@ if __name__ == "__main__":
         play(input)
     else:
         raise TypeError("This is not a file")
+
